@@ -1,13 +1,10 @@
 import math
 
-class motors():
+class Servo():
     def __init_(self, pin_num,type):
         self.pin= pin_num
-        self.type = type # Valid types: Stepper, DC, Servo (string)
         self.ServoPulseLen = None # only applicable to servos 
-        #-- Quadrature encoder Values --
-        self.EncA = None 
-        self.EncB = None
+
 
     def ServoSpin(self, servo, desired_position) -> None:
         """
@@ -20,12 +17,24 @@ class motors():
 
         """
 
+class Stepper():
+    def __init__(self, pin):
+        self.pin = pin
+
     def StepperSpin(self):
         """
         Docstring for StepperSpin
         
         :param self: Description
         """
+
+class DC():
+    def __init__(self, RPWM,LPWM):
+        #FOR BTS7960 Driver Logic
+        self.LPWM = LPWM
+        self.RPWM = RPWM
+
+        #For Quadtrature Encoders
     
     def DCSpinCW(self, length,r):
         """
