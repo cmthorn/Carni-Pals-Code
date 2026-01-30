@@ -1,8 +1,13 @@
 import math
 
-class Servo():
-    def __init_(self, pin_num,type):
-        self.pin= pin_num
+class Motor:
+    def __init__(self, pin_num):
+        self.pin = pin_num
+
+
+class Servo(Motor):
+    def __init__(self, pin_num):
+        super().__init__(pin_num)
         self.ServoPulseLen = None # only applicable to servos 
 
 
@@ -17,9 +22,9 @@ class Servo():
 
         """
 
-class Stepper():
-    def __init__(self, pin):
-        self.pin = pin
+class Stepper(Motor):
+    def __init__(self, pin_num):
+        super().__init__(pin_num)
 
     def StepperSpin(self):
         """
