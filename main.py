@@ -1,4 +1,4 @@
-from motor_control import motors
+from motor_control import Servo,Stepper,DC
 from machine import Pin
 import time
 
