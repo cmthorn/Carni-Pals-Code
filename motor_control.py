@@ -29,32 +29,35 @@ class Stepper(Motor):
         Docstring for init 
         """
         super().__init__(pin_num)
-        self.step_pin = pin_num[0]
-        self.dir_pin = pin_num[1]
-        self.steps_rev = 200
+        self.pins = [pin_num + i for i in range(4)]
 
-    def StepperSpin(self, rotations, direction = 1, delay = 0.001):
+        self.step_sequence = [
+            [1,0,0,1],
+            [1,0,0,0],
+            [1,1,0,0],
+            [0,1,0,0],
+            [0,1,1,0],
+            [0,0,1,0],
+            [0,0,1,1],
+            [0,0,0,1]
+        ]
+    def StepperSpin(self, steps=512, delay=0.002, clockwise =True):
         """
         Docstring for StepperSpin
         
         :param self: Description
         """
-
-        steps = int(abs(rotations) * self.steps_rev)
-
-        if direction == 1:
-            #DIR pin High
-            pass
+        if clockwise:
+            seq = self.step_sequence
         else:
-            #DIR pin low
-            pass
+            seq = list(reversed(self.step_sequence))
 
         for i in range(steps):
-            #High
-            pass
-            #Low
-            pass
-            time.sleep(delay)
+            for step in seq:
+                which_pins = {pin: val for pin, val in zip(self.pins, step)}
+                print(which_pins)
+                time.sleep(delay)
+        
 
 class DC():
     def __init__(self, RPWM,LPWM):
