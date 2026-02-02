@@ -1,15 +1,14 @@
 import math
 from machine import Pin,PWM
 
-from typing import Optional 
 
 class Servo():
-    def __init_(self, pin_num,type):
+    def __init_(self, pin_num):
         self.pin= pin_num
         self.ServoPulseLen = None # only applicable to servos 
 
 
-    def ServoSpin(self, servo, desired_position) -> None:
+    def ServoSpin(self, desired_position) -> None:
         """
         Docstring for ServoSpin
         :param desired_position: The Desired Position (in degrees)
@@ -19,6 +18,9 @@ class Servo():
         It will convert degrees to pulse length, and set the servo to the position.
 
         """
+
+        pulse = 65553*desired_position/100
+        print("it worked")
 
 
 class Stepper():
@@ -38,19 +40,19 @@ class DC():
             RPWM,
             LPWM,
             freq = 20000,
-            encA: Optional[int] = None,
-            encB: Optional[int] = None
+            encA = None, # defualt as none
+            encB = None
             ):
         #FOR BTS7960 Driver pin setup 
         self.LPWM = PWM(Pin(LPWM))
         self.RPWM = PWM(Pin(RPWM))
-        #Def PWM Freq
+        #Def PWM FreqS
         self.LPWM.freq(freq)
         self.RPWM.freq(freq)
 
         #Optional Quadrature Encoder Pin setup 
-        self.encA: Optional[Pin] = Pin(encA, Pin.IN) if encA is not None else None
-        self.encB: Optional[Pin] = Pin(encB, Pin.IN) if encB is not None else None
+        self.encA = Pin(encA, Pin.IN,Pin.PULL_UP) if encA is not None else None
+        self.encB = Pin(encB, Pin.IN,Pin.PULL_UP) if encB is not None else None
 
         self.position = 0 # to keep track of the current position.
     
@@ -75,5 +77,7 @@ class DC():
             self.LPWM.duty_u16(duty)
         else:
             self.stop()
+
+
   
     
