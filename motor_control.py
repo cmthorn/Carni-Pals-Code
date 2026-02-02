@@ -1,4 +1,5 @@
 import math
+import time
 
 class Motor:
     def __init__(self, pin_num):
@@ -24,14 +25,36 @@ class Servo(Motor):
 
 class Stepper(Motor):
     def __init__(self, pin_num):
+        """
+        Docstring for init 
+        """
         super().__init__(pin_num)
+        self.step_pin = pin_num[0]
+        self.dir_pin = pin_num[1]
+        self.steps_rev = 200
 
-    def StepperSpin(self):
+    def StepperSpin(self, rotations, direction = 1, delay = 0.001):
         """
         Docstring for StepperSpin
         
         :param self: Description
         """
+
+        steps = int(abs(rotations) * self.steps_rev)
+
+        if direction == 1:
+            #DIR pin High
+            pass
+        else:
+            #DIR pin low
+            pass
+
+        for i in range(steps):
+            #High
+            pass
+            #Low
+            pass
+            time.sleep(delay)
 
 class DC():
     def __init__(self, RPWM,LPWM):
