@@ -1,4 +1,6 @@
 import math
+from machine import Pin,PWM
+
 
 class Motor:
     def __init__(self, pin_num):
@@ -11,7 +13,7 @@ class Servo(Motor):
         self.ServoPulseLen = None # only applicable to servos 
 
 
-    def ServoSpin(self, servo, desired_position) -> None:
+    def ServoSpin(self, desired_position) -> None:
         """
         Docstring for ServoSpin
         :param desired_position: The Desired Position (in degrees)
@@ -34,40 +36,49 @@ class Stepper(Motor):
         """
 
 class DC():
-    def __init__(self, RPWM,LPWM):
-        #FOR BTS7960 Driver Logic
-        self.LPWM = LPWM
-        self.RPWM = RPWM
+    def __init__(
+            self,
+            RPWM,
+            LPWM,
+            freq = 20000,
+            encA = None, # defualt as none
+            encB = None
+            ):
+        #FOR BTS7960 Driver pin setup 
+        self.LPWM = PWM(Pin(LPWM))
+        self.RPWM = PWM(Pin(RPWM))
+        #Def PWM FreqS
+        self.LPWM.freq(freq)
+        self.RPWM.freq(freq)
 
-        #For Quadtrature Encoders
-    
-    def DCSpinCW(self, length,r):
-        """
-        Docstring for DCSpinCW
-        
-        :param self: Description
-        :param length: Description
-        """
-        roation = self.ConvertDistToRotation(length, r)
-    
-    def DCSpinCCW(self, length,r):
-        """
-        Docstring for DCSpinCW
-        
-        :param self: Description
-        :param length: Description
-        """
-        roation = -self.ConvertDistToRotation(length, r)
+        #Optional Quadrature Encoder Pin setup 
+        self.encA = Pin(encA, Pin.IN,Pin.PULL_UP) if encA is not None else None
+        self.encB = Pin(encB, Pin.IN,Pin.PULL_UP) if encB is not None else None
 
+        self.position = 0 # to keep track of the current position.
     
+    def stop(self):
+        self.RPWM.duty_u16(0)
+        self.LPWM.duty_u16(0)
 
-    def ConvertDistToRotation(self,length,r) -> float: 
+    def set_speed(self, speed):
         """
-        Docstring for ConvertDistToRotation
-       
-        :param length: The desired lenght to travel 
-        :return: the amount of rotations Neccecary 
-        :rtype: float
+        speed: -100 to 100
+        positive = forward
+        negative = backward
         """
-        Circumference =float( 2 * (3.14159) * r)
-        return length/Circumference
+        speed = max(-100, min(100, speed)) #makes sure speed is in between -100 and 100 
+        duty = int(abs(speed) / 100 * 65535) 
+
+        if speed > 0:
+            self.RPWM.duty_u16(duty)
+            self.LPWM.duty_u16(0)
+        elif speed < 0:
+            self.RPWM.duty_u16(0)
+            self.LPWM.duty_u16(duty)
+        else:
+            self.stop()
+
+
+  
+    
