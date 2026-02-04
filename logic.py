@@ -1,6 +1,11 @@
 from output_control import Servo, DC, Stepper, Electromagnet
 from machine import Pin
 
+
+
+
+
+
 class Gantry_SYS:
     def __init__(self, XDC: DC, YDC:DC):
         self.XMotor = XDC
