@@ -46,14 +46,40 @@ class Electromagnet(Motor):
 
 class Stepper(Motor):
     def __init__(self, pin_num):
+        """
+        Docstring for init 
+        """
         super().__init__(pin_num)
+        self.pins = [pin_num + i for i in range(4)]
 
-    def StepperSpin(self):
+        self.step_sequence = [
+            [1,0,0,1],
+            [1,0,0,0],
+            [1,1,0,0],
+            [0,1,0,0],
+            [0,1,1,0],
+            [0,0,1,0],
+            [0,0,1,1],
+            [0,0,0,1]
+        ]
+    def StepperSpin(self, steps=512, delay=0.002, clockwise =True):
         """
         Docstring for StepperSpin
         
         :param self: Description
         """
+        if clockwise:
+            seq = self.step_sequence
+        else:
+            seq = list(reversed(self.step_sequence))
+
+        for i in range(steps):
+            for step in seq:
+                which_pins = {pin: val for pin, val in zip(self.pins, step)}
+                print(which_pins)
+                time.sleep(delay)
+        
+
 
 class DC():
     def __init__(
