@@ -24,6 +24,26 @@ class Servo(Motor):
 
         """
 
+class Electromagnet(Motor):
+    def __init__(self, pin_num):
+        self.EM = Pin(pin_num, Pin.OUT)
+
+    def ElectromagnetOn(self):
+        """
+        Docstring for ElectromagnetOn
+        
+        :param self: Description
+        """
+        self.EM.on()
+
+    def ElectromagnetOff(self):
+        """
+        Docstring for ElectromagnetOff
+        
+        :param self: Description
+        """
+        self.EM.off()
+
 class Stepper(Motor):
     def __init__(self, pin_num):
         super().__init__(pin_num)
