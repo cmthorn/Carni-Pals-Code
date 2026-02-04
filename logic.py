@@ -79,4 +79,4 @@ class Claw_SYS:
         pass
 
     def clawSequence(self):
-        
+        pass
