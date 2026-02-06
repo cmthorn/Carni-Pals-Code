@@ -3,13 +3,25 @@ from machine import Pin
 
 
 
-
+class Controller: 
+    def __init__(self, Gantry, Claw, states: {})
+        self.Gantry = Gantry
+        self.Claw = Claw
+        self.tasks = None 
+    
+    
 
 
 class Gantry_SYS:
     def __init__(self, XDC: DC, YDC:DC):
         self.XMotor = XDC
         self.YMotor = YDC
+    
+    def moveX(self)
+        self.XMotor.set_speed(100)
+
+    def moveY(self)
+        self.XMotor.set_speed(100)
 
 
 
