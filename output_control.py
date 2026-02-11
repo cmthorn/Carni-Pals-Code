@@ -1,14 +1,9 @@
 from machine import Pin,PWM
 
 
-class Motor:
+class Servo:
     def __init__(self, pin_num):
-        self.pin = pin_num
-
-
-class Servo(Motor):
-    def __init__(self, pin_num):
-        super().__init__(pin_num)
+    
         self.ServoPulseLen = None # only applicable to servos 
 
 
@@ -23,7 +18,7 @@ class Servo(Motor):
 
         """
 
-class Electromagnet(Motor):
+class Electromagnet:
     def __init__(self, pin_num):
         self.EM = Pin(pin_num, Pin.OUT)
 
@@ -43,12 +38,12 @@ class Electromagnet(Motor):
         """
         self.EM.off()
 
-class Stepper(Motor):
+class Stepper:
     def __init__(self, pin_num):
         """
         Docstring for init 
         """
-        super().__init__(pin_num)
+     
         self.pins = [pin_num + i for i in range(4)]
 
         self.step_sequence = [
@@ -80,7 +75,7 @@ class Stepper(Motor):
         
 
 
-class DC():
+class DC:
     def __init__(
             self,
             RPWM,

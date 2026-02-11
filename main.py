@@ -1,30 +1,30 @@
 from output_control import Servo,Stepper,DC
-from sensors import input_handler
-from logic import Gantry_SYS, Claw_SYS
+from sensors import limit_switch
+from logic import DCMotorState, State, Controller
 from machine import Pin
 import time
 
-led = Pin(15, Pin.OUT)
+led = Pin(25, Pin.OUT)
 
-# GANTRY OBJECTS 
+#initialize Gantry states and pins 
 xDC = DC(16,17)
 yDC = DC(18,19)
 
 
-Gantry = Gantry_SYS(xDC,yDC)
-# TODO: Create an input handler ->constantly updates a list with events/STATES based off inputs
-    #TODO: initialize all sensores and put them in the input handler consturctor
 
-IPH = input_handler()
+#initialize all sensors 
+testLimSwitch = limit_switch(0)
+testLimSwitch2 = limit_switch(1)
+brain = Controller( xDC, yDC, testLimSwitch, testLimSwitch2)
 
-# TODO: Create a Controller to handle logic based off of state + events 
-# TODO: Create a Task Queue that holds taks and has one go at a time
 
+          
 
 print("test beggining")
 tasks = {}
 while True:
-   tasks = IPH.update_tasks() # constantly populates this map with tasks 
+    led.on()
+    brain.update()
     # led.toggle()
     # xDC.set_speed(50)
     # time.sleep(1)
