@@ -1,4 +1,4 @@
-from machine import Pin,PWM
+from machine import Pin,PWM, UART
 from time import sleep
 import neopixel
 
@@ -30,7 +30,7 @@ class Servo:
 
     def deinit(self):
         """
-        Turn off PWM (optional cleanup)
+        Turn off PWM 
         """
         self.pwm.deinit()
 
@@ -55,39 +55,38 @@ class Electromagnet:
         self.EM.off()
 
 class Stepper:
-    def __init__(self, pin_num):
+    def __init__(self, p1,p2,p3,p4,delay = 0.005):
         """
         Docstring for init 
         """
      
-        self.pins = [pin_num + i for i in range(4)]
+        self.pins = [
+            Pin(p1,Pin.OUT),
+            Pin(p2,Pin.OUT),
+            Pin(p3,Pin.OUT),
+            Pin(p4,Pin.OUT)
+        ]
+        self.delay = delay
 
         self.step_sequence = [
-            [1,0,0,1],
             [1,0,0,0],
-            [1,1,0,0],
             [0,1,0,0],
-            [0,1,1,0],
             [0,0,1,0],
-            [0,0,1,1],
             [0,0,0,1]
         ]
-    def StepperSpin(self, steps=512, delay=0.002, clockwise =True):
-        """
-        Docstring for StepperSpin
+    def step(self, cycles, direction=1):
         
-        :param self: Description
-        """
-        if clockwise:
-            seq = self.step_sequence
-        else:
-            seq = list(reversed(self.step_sequence))
+        sequence = self.step_sequence if direction == 1 else self.step_sequence[::-1]
+    
+        for s in range(cycles):
+            for step in sequence:
+                for i in range(4):
+                    self.pins[i].value(step[i])
+                sleep(self.delay)
 
-        for i in range(steps):
-            for step in seq:
-                which_pins = {pin: val for pin, val in zip(self.pins, step)}
-                print(which_pins)
-                time.sleep(delay)
+    def stop(self):
+        for pin in self.pins:
+            pin.value(0)
         
 
 
@@ -163,6 +162,29 @@ class led_strip:
         self.np.write()
 
 
-
-  
+class Speaker():
+    def __init__(self, busy_pin, Tx=0, Rx=1, main_theme =3, grab_music =2,sucess =3, fail = 4):
+        self.uart = UART(0, baudrate=9600, tx=Tx, rx=Rx)
+        self.busy = Pin(busy_pin, Pin.IN)  # DFPlayer BUSY pin
+        self.main_theme = main_theme
+        self.grab_music = grab_music
+        self.sucess = sucess
+        self.fail = fail 
     
+    def is_busy(self) ->bool:
+        return self.busy.value() == 1
+
+    def bgMusic(self):
+        self.uart.write(bytearray([0x7E,0xFF,0x06,0x03,0x00,0x00,self.main_theme,0xEF]))
+
+    def grabMusic(self):
+        self.uart.write(bytearray([0x7E,0xFF,0x06,0x03,0x00,0x00,self.grab_music,0xEF]))
+
+    def sucessMusic(self):
+        self.uart.write(bytearray([0x7E,0xFF,0x06,0x03,0x00,0x00,self.sucess,0xEF]))
+
+    def failMusic(self):
+        self.uart.write(bytearray([0x7E,0xFF,0x06,0x03,0x00,0x00,self.fail,0xEF]))
+
+    def stop(self):
+        self.uart.write(bytearray([0x7E,0xFF,0x06,0x16,0x00,0x00,0x00,0xEF]))

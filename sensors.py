@@ -16,7 +16,7 @@ class Button:
     def __init__(self,pin_num):
         self.button = Pin(pin_num, Pin.IN, Pin.PULL_UP)
     def pressed(self):
-        return self.button.value()
+        return self.button.value() == 0
 
 
 class Joystick: 
