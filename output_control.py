@@ -1,5 +1,5 @@
 from machine import Pin,PWM, UART
-from time import sleep
+import time
 import neopixel
 
 
@@ -68,21 +68,32 @@ class Stepper:
         ]
         self.delay = delay
 
-        self.step_sequence = [
+        self.Full_step = [
             [1,0,0,0],
             [0,1,0,0],
             [0,0,1,0],
             [0,0,0,1]
         ]
+        self.Half_step = [
+        [1, 0, 0, 0],  
+        [1, 1, 0, 0],  
+        [0, 1, 0, 0],  
+        [0, 1, 1, 0],  
+        [0, 0, 1, 0],  
+        [0, 0, 1, 1],  
+        [0, 0, 0, 1],  
+        [1, 0, 0, 1],  
+    ]
+
     def step(self, cycles, direction=1):
         
-        sequence = self.step_sequence if direction == 1 else self.step_sequence[::-1]
+        sequence = self.Full_step if direction == 1 else self.Full_step[::-1]
     
         for s in range(cycles):
             for step in sequence:
                 for i in range(4):
                     self.pins[i].value(step[i])
-                sleep(self.delay)
+                time.sleep(self.delay)
 
     def stop(self):
         for pin in self.pins:
@@ -139,31 +150,31 @@ class led_strip:
     def __init__(self, num_lights, num_pin):
         self.n = num_lights
         self.p = num_pin
+        self.np = neopixel.NeoPixel(Pin(self.p), self.n)
 
-        self.np = neopixel.NeoPixel(Pin(self.p),self.n)
+        self.colors = [
+            (255,0,0), (255,165,0), (255,255,0), (0,255,25),
+            (0,0,255), (128,0,128), (255,0,255), (255,255,255),
+            (255,0,0), (0,255,255), (0,0,255), (0,255,0)
+        ]
 
     def party_time(self):
-        self.np[0] = (255,0,0)
-        self.np[1] = (255,165,0)
-        self.np[2] = (255,255,0)
-        self.np[3] = (0,255,25)
-        self.np[4] = (0,0,255)
-        self.np[5] = (128,0,128)
-        self.np[6] = (255,0,255)
-        self.np[7] = (255,255,255)
-        self.np[8] = (255,0,0)
-        self.np[9] = (0,255,255)
-        self.np[10] = (0,0,255)
-        self.np[11] = (0,255,0)
-        self.np.write()
-        sleep(2)
-        for i in range(self.n):
-            self.np[i] = (0,0,0)
-        self.np.write()
+        end_time = time.time() + 5
 
+        while time.time() < end_time:
+            # on
+            for i in range(self.n):
+                self.np[i] = self.colors[i % len(self.colors)]
+            self.np.write()
+            time.sleep(0.3)
+            # off
+            for i in range(self.n):
+                self.np[i] = (0, 0, 0)
+            self.np.write()
+            time.sleep(0.3)
 
 class Speaker():
-    def __init__(self, busy_pin, Tx=0, Rx=1, main_theme =3, grab_music =2,sucess =3, fail = 4):
+    def __init__(self, busy_pin, Tx=0, Rx=1, main_theme =1, grab_music =2,sucess =3, fail = 4):
         self.uart = UART(0, baudrate=9600, tx=Tx, rx=Rx)
         self.busy = Pin(busy_pin, Pin.IN)  # DFPlayer BUSY pin
         self.main_theme = main_theme
