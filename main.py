@@ -71,7 +71,7 @@ def grab():
     print("done")
 
 count = 0
-while True:
+while True: 
     led.on()
      # ---- IDLE: wait for player ----
     if state == IDLE:
