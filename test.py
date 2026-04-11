@@ -3,7 +3,7 @@ import config
 import time
 import neopixel
 
-from output_control import DC, led_strip, Servo, Stepper,Speaker
+from output_control import DC, led_strip, Servo, Stepper,Speaker,TFF6612FNG
 from sensors import Joystick,limit_switch,Button
 
 #============= Sensors =================
@@ -45,71 +45,81 @@ def play(track_number):
 
 
 #onboard LED
-led = Pin("LED", Pin.OUT)
+led = Pin(0, Pin.OUT)
 
 
 #motors 
 ZMotor = DC(config.ZMotorLPWM,config.ZMotorRPWM)
 XMotor = DC(config.XMotorLPWM,config.XMotorRPWM)
-
 #Servo 
 ClawServo = Servo(config.servo) 
 
 #led_strip
 # led_strip_1 = led_strip(12,1)
 
-stepper = Stepper(config.Stepper1, config.Stepper2, config.Stepper3, config.Stepper4)
 
+    
+
+
+YMotor = TFF6612FNG(config.PWMA, config.AIN1, config.AIN2)
+
+#directions:
+#  1 = counter clockwise -> up 
+#  -1 = clockwise -> down
+
+# YMotor.set_speed(30,1)
+# time.sleep(3)
+
+ 
 count = 0
-delay = 1.5
-
-
-def grab(): 
-    ZMotor.stop()
-    XMotor.stop()
-    ClawServo.write(180)
-    print("button presseedm lowering")
-    stepper.step(1024,1)
-    ClawServo.write(0)
-    print("servo Closing")
-    time.sleep(1.75)
-    print("Closed, going up")
-    stepper.step(1024,-1)
-    ClawServo.write(180)
-    print("servo Opening")
-    time.sleep(1)
-    print("done")
-    
-
-    
-
-
-
-
-
-speaker.bgMusic()
 while True:  
-    #print(x_lim_switch.pressed(), ";", z_lim_switch.pressed())
-    led.on()
     if button.pressed():
-        grab()
+        if count == 0: 
+            print("openning")
+            ClawServo.write(180)
+            time.sleep(1)
+            count = 1
 
-    print("limx:", x_lim_switch.pressed()," ; ", "limz:", z_lim_switch.pressed())
-    # ClawServo.write(0)
-    # time.sleep(1.5)
-    # ClawServo.write(180)
-    # time.sleep(1.5)
-
+    time.sleep(0.25)
+    if button.pressed():
+        if count == 1: 
+            print("closing")
+            ClawServo.write(0)
+            time.sleep(1)
+            count = 0
+    
+    #print("Z:",z_lim_switch.pressed(),"| X:",x_lim_switch.pressed())
     # x, y = joystick.on() 
     # x, y = joystick.drift_fix(x,y) # fixes non-zero 0 values (e.g. - 0.2)
     # print("X,y =", x,",", y) #for debugging
-    #XMotor.set_speed(y)
-    #ZMotor.set_speed(x)
+        
+    # if button.pressed():
+    #     if count == 0: 
+    #         YMotor.set_speed(30,-1)
+    #         time.sleep(1.5)
+    #         YMotor.set_speed(0)
+    #         count = 1
+    #         time.sleep(1)
 
-    # stepper.step(512,-1)
-    # time.sleep(0.5)
-    # stepper.step(512,1)
+    # if button.pressed():
+    #     if count == 1: 
+    #         YMotor.set_speed(35,1)
+    #         time.sleep(3)
+    #         YMotor.set_speed(0)
+    #         count = 0
+    #         time.sleep(1)
+
+    # YMotor.set_speed(30,-1)
     # time.sleep(1)
+    # YMotor.set_speed(0)
+    # time.sleep(60)
+    # YMotor.set_speed(30,1)
+    # time.sleep(1.5)
+    # YMotor.set_speed(0)
+    # time.sleep(2)
+  
+    
+    led.on()
 
-# led1 = led_strip(12,config.ledpin)
-# led1.party_time()
+
+    

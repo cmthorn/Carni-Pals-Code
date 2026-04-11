@@ -1,7 +1,6 @@
-from output_control import Servo,Stepper,DC,Speaker
+from output_control import Servo,DC,Speaker,TFF6612FNG
 import config
 from sensors import limit_switch,Button, Joystick 
-from logic import DCMotorState, State, Controller
 from machine import Pin, PWM,ADC, UART
 import time
 
@@ -17,8 +16,7 @@ XMotor = DC(config.XMotorLPWM,config.XMotorRPWM)
 #CLAW
 ClawServo = Servo(config.servo) 
 
-stepper = Stepper(config.Stepper1, config.Stepper2, config.Stepper3, config.Stepper4)
-
+YMotor = TFF6612FNG(config.PWMA, config.AIN1, config.AIN2)
 
 #the most important component:
 led = Pin("LED", Pin.OUT)
@@ -54,16 +52,29 @@ def calibration_sequence(X:DC, Y:DC, limX: limit_switch, LimY:limit_switch):
         
         
 def grab(): 
+    # RESET SUSBSYTEMS
     ZMotor.stop()
     XMotor.stop()
     ClawServo.write(180)
-    print("button presseedm lowering")
-    stepper.step(1024,1)
+
+    #LOWER
+    print("button presseed lowering")
+    YMotor.set_speed(30,-1)
+    time.sleep(2)
+    YMotor.set_speed(0)
+    
+    #Close Claw 
     ClawServo.write(0)
     print("servo Closing")
     time.sleep(1.75)
+
+    #UPPIES
     print("Closed, going up")
-    stepper.step(1024,-1)
+    YMotor.set_speed(35,1)
+    time.sleep(4)
+    YMotor.set_speed(0)
+    
+    #SUCESSEROONIE
     calibration_sequence(XMotor,ZMotor,x_lim_switch,z_lim_switch)
     print("servo Opening")
     ClawServo.write(180)
@@ -71,10 +82,12 @@ def grab():
     print("done")
 
 count = 0
+YMotor.set_speed(0)
 while True: 
     led.on()
      # ---- IDLE: wait for player ----
     if state == IDLE:
+        
         print("state = idle")
         XMotor.stop()
         ZMotor.stop()
@@ -89,6 +102,7 @@ while True:
     # ---- PLAYING: joystick + music ----
     elif state == PLAYING:
         print("state = playing")
+        
         x, y = joystick.on() 
         x, y = joystick.drift_fix(x,y) # fixes non-zero 0 values (e.g. - 0.2)
         #print("X,y =", x,",", y) #for debugging

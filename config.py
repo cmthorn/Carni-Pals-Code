@@ -7,6 +7,10 @@ ZMotorRPWM =16
 XMotorLPWM =18
 XMotorRPWM =19
 
+PWMA = 11
+AIN1 = 10
+AIN2 = 9
+
 joyVx = 27
 joyVy = 28 
 
@@ -16,10 +20,7 @@ buttonpin = 20
 #===Speaker++
 busy = 14
 
-Stepper1 = 10 
-Stepper2 = 11 
-Stepper3 = 8 
-Stepper4 = 9 
+
 
 xlimswitch = 4
 zlimswitch = 22

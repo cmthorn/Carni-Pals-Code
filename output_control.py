@@ -2,6 +2,39 @@ from machine import Pin,PWM, UART
 import time
 import neopixel
 
+class TFF6612FNG: 
+    def __init__ (self,pwm,in1,in2):
+        self.PWM = PWM(Pin(pwm))  
+        self.IN1 = Pin(in1,Pin.OUT)
+        self.IN2 = Pin(in2, Pin.OUT)
+        self.direction = [0,1]
+        self.PWM.freq(1000)
+
+    def set_speed(self,speed, direction =1):
+        # handle direction 
+        sequence = self.direction
+
+        if direction == -1:
+            sequence = self.direction[::-1]
+
+        self.IN1.value(sequence[0])
+        self.IN2.value(sequence[1])
+
+        #handle speed bounding
+        if speed>100: 
+            speed = 100 
+        if speed<0:
+            speed = 0 
+
+        print("speed:",speed, "|direction:", sequence)
+        
+        duty_16 = int((speed*65536)/100)
+        self.PWM.duty_u16(duty_16)
+ 
+            
+
+        
+
 
 class Servo:
     def __init__(self, pin, min_us=600, max_us=2600, freq=50):
