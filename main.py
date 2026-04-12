@@ -1,4 +1,4 @@
-from output_control import Servo,DC,Speaker,TFF6612FNG
+from output_control import Servo,DC,Speaker,TFF6612FNG,L289N
 import config
 from sensors import limit_switch,Button, Joystick 
 from machine import Pin, PWM,ADC, UART
@@ -9,9 +9,8 @@ speaker = Speaker(config.busy) #input busypin laer
 
 #========= GANTRY SETUP
 #initialize Gantry states and pins 
-ZMotor = DC(config.ZMotorLPWM,config.ZMotorRPWM)
-XMotor = DC(config.XMotorLPWM,config.XMotorRPWM)
-
+ZMotor = L289N(config.ZMotorLPWM,config.ZMotorRPWM)
+XMotor = L289N(config.XMotorLPWM,config.XMotorRPWM)
 
 #CLAW
 ClawServo = Servo(config.servo) 
@@ -40,21 +39,21 @@ GAME_OVER = 3
 
 state = IDLE
 
-def calibration_sequence(X:DC, Y:DC, limX: limit_switch, LimY:limit_switch):
+def calibration_sequence(X:L289N, Y:L289N, limX: limit_switch, LimY:limit_switch):
     x = False
     z = False
     while not x_lim_switch.pressed():
-        XMotor.set_speed(-100)
+        XMotor.set_speed(-1)
     XMotor.set_speed(0)
     while not z_lim_switch.pressed():
-        ZMotor.set_speed(100)
+        ZMotor.set_speed(1)
     ZMotor.set_speed(0)
         
         
 def grab(): 
     # RESET SUSBSYTEMS
-    ZMotor.stop()
-    XMotor.stop()
+    ZMotor.set_speed(0)
+    XMotor.set_speed(0)
     ClawServo.write(180)
 
     #LOWER
@@ -82,15 +81,14 @@ def grab():
     print("done")
 
 count = 0
-YMotor.set_speed(0)
 while True: 
     led.on()
      # ---- IDLE: wait for player ----
     if state == IDLE:
         
         print("state = idle")
-        XMotor.stop()
-        ZMotor.stop()
+        XMotor.set_speed(0)
+        ZMotor.set_speed(0)
         ClawServo.write(0)  # reset claw
 
         if button.pressed():
@@ -106,8 +104,18 @@ while True:
         x, y = joystick.on() 
         x, y = joystick.drift_fix(x,y) # fixes non-zero 0 values (e.g. - 0.2)
         #print("X,y =", x,",", y) #for debugging
-        XMotor.set_speed(y)
-        ZMotor.set_speed(x)
+        if y>0:
+            XMotor.set_speed(1)
+        elif y<0:
+            XMotor.set_speed(-1)
+        else:
+            XMotor.set_speed(0)
+        if x>0:
+            ZMotor.set_speed(1)
+        elif x<0:
+            ZMotor.set_speed(-1)
+        else:
+            ZMotor.set_speed(0)
 
         # ready button interrupts music
         if button.pressed():
@@ -134,8 +142,8 @@ while True:
     # ---- GAME_OVER: reset game ----
     elif state == GAME_OVER:
         print("state = Game Over")
-        XMotor.stop()
-        ZMotor.stop()
+        XMotor.set_speed(0)
+        ZMotor.set_speed(0)
         ClawServo.write(0)
         time.sleep(1)
         state = IDLE

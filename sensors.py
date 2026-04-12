@@ -40,9 +40,9 @@ class Joystick:
         new_x = x
         new_y = y
 
-        if -1<x<1: 
+        if -3<x<3: 
             new_x= 0
-        if -1<y<1: 
+        if -3<y<3: 
             new_y= 0
 
         return [new_x,new_y]

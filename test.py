@@ -3,7 +3,7 @@ import config
 import time
 import neopixel
 
-from output_control import DC, led_strip, Servo, Stepper,Speaker,TFF6612FNG
+from output_control import DC, led_strip, Servo, Stepper,Speaker,TFF6612FNG,L289N
 from sensors import Joystick,limit_switch,Button
 
 #============= Sensors =================
@@ -14,6 +14,7 @@ joystick = Joystick(config.joyVy, config.joyVx)
 #Chute_lim_switch = limit_switch(config.limswitchchute) #current test switch 
 z_lim_switch = limit_switch(config.zlimswitch)
 x_lim_switch = limit_switch(config.xlimswitch)
+chute_lim_switch = limit_switch(config.chutelimswitch)
 
 #big beuatiful button: 
 button = Button(config.buttonpin)
@@ -25,32 +26,14 @@ button = Button(config.buttonpin)
 speaker = Speaker(config.busy) 
 
 
-def play(track_number):
-    """
-    Play track by number
-    track_number: integer (1,2,3,...)
-    """
-    #
-    command = bytearray([
-        0x7E,      # start byte
-        0xFF,      # version
-        0x06,      # length
-        0x03,      # command: play track
-        0x00,      # feedback: 0=no, 1=yes
-        0x00,      # high byte of track
-        track_number, # low byte of track
-        0xEF       # end byte
-    ])
-    uart.write(command)
-
 
 #onboard LED
-led = Pin(0, Pin.OUT)
+led = Pin(25, Pin.OUT)
 
 
 #motors 
-ZMotor = DC(config.ZMotorLPWM,config.ZMotorRPWM)
-XMotor = DC(config.XMotorLPWM,config.XMotorRPWM)
+ZMotor = L289N(config.ZMotorLPWM,config.ZMotorRPWM)
+XMotor = L289N(config.XMotorLPWM,config.XMotorRPWM)
 #Servo 
 ClawServo = Servo(config.servo) 
 
@@ -69,57 +52,45 @@ YMotor = TFF6612FNG(config.PWMA, config.AIN1, config.AIN2)
 
 # YMotor.set_speed(30,1)
 # time.sleep(3)
-
  
 count = 0
-while True:  
-    if button.pressed():
-        if count == 0: 
-            print("openning")
-            ClawServo.write(180)
-            time.sleep(1)
-            count = 1
+XMotor.set_speed(0)
+ZMotor.set_speed(0)
 
-    time.sleep(0.25)
-    if button.pressed():
-        if count == 1: 
-            print("closing")
-            ClawServo.write(0)
-            time.sleep(1)
-            count = 0
-    
-    #print("Z:",z_lim_switch.pressed(),"| X:",x_lim_switch.pressed())
-    # x, y = joystick.on() 
-    # x, y = joystick.drift_fix(x,y) # fixes non-zero 0 values (e.g. - 0.2)
-    # print("X,y =", x,",", y) #for debugging
+
+while True:  
+
+    if chute_lim_switch.pressed():
         
     # if button.pressed():
-    #     if count == 0: 
-    #         YMotor.set_speed(30,-1)
-    #         time.sleep(1.5)
-    #         YMotor.set_speed(0)
-    #         count = 1
-    #         time.sleep(1)
+    #     print(button.pressed())
 
-    # if button.pressed():
-    #     if count == 1: 
-    #         YMotor.set_speed(35,1)
-    #         time.sleep(3)
-    #         YMotor.set_speed(0)
-    #         count = 0
-    #         time.sleep(1)
+    #     ZMotor.set_speed(0)
+    #     XMotor.set_speed(0)
+    #     ClawServo.write(180)
+    #     time.sleep(2)
 
-    # YMotor.set_speed(30,-1)
-    # time.sleep(1)
-    # YMotor.set_speed(0)
-    # time.sleep(60)
-    # YMotor.set_speed(30,1)
-    # time.sleep(1.5)
-    # YMotor.set_speed(0)
-    # time.sleep(2)
-  
+    #     #LOWER
+    #     print("button presseed lowering")
+    #     YMotor.set_speed(30,-1)
+    #     time.sleep(2)
+    #     YMotor.set_speed(0)
+        
+    #     #Close Claw 
+    #     ClawServo.write(0)
+    #     print("servo Closing")
+    #     time.sleep(1.75)
+
+    #     #UPPIES
+    #     print("Closed, going up")
+    #     YMotor.set_speed(35,1)
+    #     time.sleep(4)
+    #     YMotor.set_speed(0)
+
     
     led.on()
+
+
 
 
     

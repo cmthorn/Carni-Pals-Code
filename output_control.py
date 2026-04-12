@@ -10,7 +10,7 @@ class TFF6612FNG:
         self.direction = [0,1]
         self.PWM.freq(1000)
 
-    def set_speed(self,speed, direction =1):
+    def set_speed(self,speed, direction=1):
         # handle direction 
         sequence = self.direction
 
@@ -30,6 +30,30 @@ class TFF6612FNG:
         
         duty_16 = int((speed*65536)/100)
         self.PWM.duty_u16(duty_16)
+
+
+class L289N: 
+    def __init__ (self,in1,in2):
+        self.IN1 = Pin(in1,Pin.OUT)
+        self.IN2 = Pin(in2, Pin.OUT)
+        self.direction = [0,1]
+
+    def set_speed(self, direction):
+        # handle direction 
+        sequence = self.direction
+
+        if direction == 0:
+            sequence = [0,0]
+
+        if direction == -1:
+            sequence = self.direction[::-1]
+
+        self.IN1.value(sequence[0])
+        self.IN2.value(sequence[1])
+
+
+        print( "|direction:", sequence)
+        
  
             
 
